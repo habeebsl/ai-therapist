@@ -1,0 +1,143 @@
+import os
+import json
+from mistralai import Mistral
+
+breakers = {"ai_chatbot": "automatic_thought", "thought_response": "response_ready", "therapy_note": "note_available"}
+
+def get_conversation_data(convos):
+    conversation_data = ""
+    for convo in convos:
+        role = convo["role"]
+        content = convo["content"]
+        prefix = "You" if role == "assistant" else "Patient"
+        if conversation_data:
+            conversation_data += f"\n{prefix}: {content}"
+        else:
+            conversation_data += f"{prefix}: {content}"
+    return conversation_data
+
+
+def is_only_tabs(string):
+    return all(char == '\t' for char in string)
+
+def get_response(chat_response):
+    count = 0
+    for choice in chat_response:
+        content = choice.message.content.strip()
+        count += 1
+
+        if is_only_tabs(content):
+            print(f"choice {count} is only tabs")
+            continue
+
+        try:
+            parsed_content = json.loads(content)
+            if parsed_content == "" or parsed_content == {} or parsed_content == []:
+                continue
+            print(content)
+            return content
+        except json.JSONDecodeError:
+            continue
+
+    print("No valid JSON content found.")
+    return None
+
+
+api_key = "mVqgAk8YchjcyURvOh2aFTFEns2ULKsw"
+
+model = "mistral-large-2411"
+
+def chat_with_ai(prompt, res_key, c_input=None):
+    conversation = None
+    # Send message with prompt and input
+    with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
+        post = file.read()
+
+    client = Mistral(api_key=api_key)
+
+    if c_input:
+        content = f"{c_input}\n\n\n{post}"
+    else:
+        content = f"{post}"
+
+    messages = [
+        {
+            "role": "system",
+            "content": content,
+        }
+    ]
+
+    while True:
+        chat_response = client.chat.complete(
+            model = model,
+            n=2,
+            messages = messages,
+            response_format = {
+                "type": "json_object",
+            }
+        )
+
+        # Add response to messages
+        response = json.loads(get_response(chat_response.choices))
+        res = response[res_key]
+        messages.append({"role": "assistant", "content": f"{res}"})
+        if conversation == None:
+            conversation = f"You: {res}"
+        else:
+            conversation += f"\nYou: {res}"
+        
+        # Repeat until the breaker == True
+        if response["response_ready"] == True:
+            return response, conversation
+        else:
+            print(res)
+            user_input = input("Say Something: ")
+            messages.append({"role": "user", "content": f"{user_input}"})
+            conversation += f"\nPatient: {user_input}"
+        
+
+# topres = chat_with_ai("thought_response", "res", json.dumps({
+#     "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
+#     "done": True}))
+
+
+def get_ai_response(prompt, convo, res_key=None, input=None):
+    client = Mistral(api_key=api_key)
+    with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
+        post = file.read()
+
+    if input:
+        content = f"{input}\n\n\n{post}"
+    else:
+        content = f"{post}"
+
+    messages = [
+        {
+            "role": "system",
+            "content": content,
+        }
+    ]   
+    messages = messages + convo
+
+    print(messages)
+
+    chat_response = client.chat.complete(
+        model = model,
+        n=2,
+        messages = messages,
+        response_format = {
+            "type": "json_object",
+        }
+    )
+
+    raw_response = get_response(chat_response.choices)
+    print(chat_response.choices)
+    print("Raw response: ", raw_response)
+    response = json.loads(raw_response)
+    res = response["res" if not res_key else res_key]
+
+    return response
+
+
+
+
