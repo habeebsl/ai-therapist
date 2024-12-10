@@ -111,23 +111,25 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
     ]
     messages = messages + convo
     print(messages)
+    try:
+        chat_response = client.chat.complete(
+            model = model,
+            n=2,
+            messages = messages,
+            response_format = {
+                "type": "json_object",
+            }
+        )
 
-    chat_response = client.chat.complete(
-        model = model,
-        n=2,
-        messages = messages,
-        response_format = {
-            "type": "json_object",
-        }
-    )
+        raw_response = get_response(chat_response.choices)
+        print(chat_response.choices)
+        print("Raw response: ", raw_response)
+        response = json.loads(raw_response)
+        res = response["res" if not res_key else res_key]
 
-    raw_response = get_response(chat_response.choices)
-    print(chat_response.choices)
-    print("Raw response: ", raw_response)
-    response = json.loads(raw_response)
-    res = response["res" if not res_key else res_key]
-
-    return response
+        return response
+    except:
+        return None
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_KEY_PREFIX'] = 'flask-session:'
 app.config['SESSION_REDIS'] = redis.StrictRedis(host=REDIS_URL, port=REDIS_PORT, password=PASSWORD, ssl=True)
-# Redis(host='localhost', port=6379, password=config('REDIS_PASS'))
+# Redis(host='localhost', port=6379)
 Session(app)
 
 def switch_to_next_prompt():
@@ -155,6 +155,14 @@ def send_message():
 
     update_conversation("user", user_message)
     ai_response = generate_ai_response()
+    if not ai_response:
+        session["conversation"].pop()
+        session["current_convo"].pop()
+        print("An error occured")
+        return  jsonify({
+            "error": True
+        })
+    
     print(session["conversation"])
 
     if ai_response.get(breakers.get(session["current_prompt"], "done")) == True:

@@ -59,6 +59,15 @@ body {
     border-bottom-left-radius: 5px;
 }
 
+.error-bubble {
+    background-color: darkred;
+    opacity: 0.5;
+    color: white;
+    align-self: flex-start;
+    float: left;
+    border-bottom-left-radius: 5px;
+}
+
 #input-container {
     display: flex;
     padding: 15px;

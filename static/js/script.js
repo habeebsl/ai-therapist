@@ -9,7 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            sendMessage()
+            if (sendButton.style.display !== "none") {
+                sendMessage()
+            } 
         }
     })
 
@@ -108,21 +110,32 @@ document.addEventListener("DOMContentLoaded", () => {
             createMessageElement("user", message)
         )
 
+        sendButton.style.display = "none";
+
         try {
             const response = await fetch("/send_message", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message })
             })
-
+            
             const data = await response.json()
+            if (data.error) {
+                console.log(data.error)
+                messagesArea.appendChild(
+                    createMessageElement("error", "Something went wrong on our side. Please try again.")
+                )
+                sendButton.style.display = "block";
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                return None
+            }
             if (data.feedback === "inprogress") {
                 messagesArea.appendChild(
                     createMessageElement("bot", data.message)
                 )
                 messageInput.value = ""
             }
-
+            sendButton.style.display = "block";
             messagesArea.scrollTop = messagesArea.scrollHeight;
 
         } catch (error) {
