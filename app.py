@@ -3,21 +3,18 @@ from flask import Flask, render_template, session, jsonify, request
 from model import get_ai_response, get_conversation_data, breakers
 
 from flask_session import Session
+from decouple import config
 from redis import Redis
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY']= "614df2284140f6e343faaf5e1de2aa6a"
-
+app.config['SECRET_KEY']= config('SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_KEY_PREFIX'] = 'flask-session:'
-
-app.config['SESSION_REDIS'] = Redis(host='localhost', port=6379, password="24434")
-
+app.config['SESSION_REDIS'] = Redis(host='localhost', port=6379, password=config('REDIS_PASS'))
 Session(app)
-
 
 def switch_to_next_prompt():
     session["prompt_queue"].pop(0)
@@ -26,7 +23,6 @@ def switch_to_next_prompt():
         return True
     else:
         return None
-
 
 def prompt_checker(prompt_name, convo_history, current_convo, ai_response):
     prompt_handlers = {
@@ -70,7 +66,6 @@ def prompt_checker(prompt_name, convo_history, current_convo, ai_response):
     handler = prompt_handlers.get(prompt_name, lambda: {"type": None})
     return handler()
 
-
 def generate_ai_response():
     input_details =  prompt_checker(
         session["current_prompt"], 
@@ -88,7 +83,6 @@ def generate_ai_response():
         response = get_ai_response(prompt=session["current_prompt"], convo=session["current_convo"], input=input)
     
     return response
-
 
 def update_conversation(role, content):
     conversation = session.get("conversation", [])
@@ -167,8 +161,6 @@ def send_message():
         elif session["current_prompt"] == "provide_homework":
             if ai_response.get("homework", None):
                 session["homework"] = ai_response["homework"]
-        
-
 
         if switch_to_next_prompt() == None:
             return get_feedback_response()
@@ -182,6 +174,7 @@ def send_message():
         "feedback": "inprogress"
         })
 
+
 @app.route("/get_notes")
 def get_notes():
     print("Notes: ", session["note"])
@@ -193,4 +186,4 @@ def get_notes():
     })
  
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=config('DEBUG'))

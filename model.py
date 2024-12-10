@@ -1,6 +1,12 @@
 import os
 import json
+
+from decouple import config
 from mistralai import Mistral
+
+api_key = config('MISTRAL_KEY')
+model = "mistral-large-2411"
+client = Mistral(api_key=api_key)
 
 breakers = {"ai_chatbot": "automatic_thought", "thought_response": "response_ready", "therapy_note": "note_available"}
 
@@ -16,10 +22,10 @@ def get_conversation_data(convos):
             conversation_data += f"{prefix}: {content}"
     return conversation_data
 
-
 def is_only_tabs(string):
     return all(char == '\t' for char in string)
 
+# Retrieves the json object from the raw response
 def get_response(chat_response):
     count = 0
     for choice in chat_response:
@@ -42,18 +48,11 @@ def get_response(chat_response):
     print("No valid JSON content found.")
     return None
 
-
-api_key = "mVqgAk8YchjcyURvOh2aFTFEns2ULKsw"
-
-model = "mistral-large-2411"
-
+# For testing purposes only
 def chat_with_ai(prompt, res_key, c_input=None):
     conversation = None
-    # Send message with prompt and input
     with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
         post = file.read()
-
-    client = Mistral(api_key=api_key)
 
     if c_input:
         content = f"{c_input}\n\n\n{post}"
@@ -77,7 +76,6 @@ def chat_with_ai(prompt, res_key, c_input=None):
             }
         )
 
-        # Add response to messages
         response = json.loads(get_response(chat_response.choices))
         res = response[res_key]
         messages.append({"role": "assistant", "content": f"{res}"})
@@ -86,7 +84,6 @@ def chat_with_ai(prompt, res_key, c_input=None):
         else:
             conversation += f"\nYou: {res}"
         
-        # Repeat until the breaker == True
         if response["response_ready"] == True:
             return response, conversation
         else:
@@ -96,13 +93,8 @@ def chat_with_ai(prompt, res_key, c_input=None):
             conversation += f"\nPatient: {user_input}"
         
 
-# topres = chat_with_ai("thought_response", "res", json.dumps({
-#     "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
-#     "done": True}))
-
-
+# Main function
 def get_ai_response(prompt, convo, res_key=None, input=None):
-    client = Mistral(api_key=api_key)
     with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
         post = file.read()
 
@@ -116,9 +108,8 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
             "role": "system",
             "content": content,
         }
-    ]   
+    ]
     messages = messages + convo
-
     print(messages)
 
     chat_response = client.chat.complete(
@@ -139,5 +130,9 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
     return response
 
 
-
+if __name__ == "__main__":
+    topres = chat_with_ai("thought_response", "res", json.dumps({
+        "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
+        "done": True
+    }))
 
