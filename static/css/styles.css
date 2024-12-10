@@ -127,7 +127,6 @@ body {
     border-radius: 5px;
 }
 
-/* Scroll bar styling */
 #messages-area::-webkit-scrollbar {
     width: 6px;
 }
