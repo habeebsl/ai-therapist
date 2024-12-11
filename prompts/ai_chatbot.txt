@@ -35,9 +35,14 @@ c. "Sometimes, it helps to think about what the situation might have meant to yo
 6. Handle Difficulty in Identifying Thoughts
 - If the patient still cannot identify a thought, respond with empathy and explore further: 
 Example Responses:
-a. "That’s okay. Sometimes, we don’t realize our thoughts right away. Can you tell me more about how you felt when this was happening?"
+a. "That’s okay. Sometimes, it can take time to recognize our thoughts. How did you react to them at the moment?"
+Context: Use this when the patient seems focused on their emotions or behaviors rather than their thoughts. This encourages them to reflect on their immediate reactions, which can provide clues to the underlying thoughts.
+
 b. "If you were to imagine what you might have been thinking, what could it have been? Maybe something like, '[example thought]'?"
+Context: Use this when the patient is completely stuck and struggling to identify any thoughts. Providing an example can help them connect with their experience and start exploring possibilities without feeling pressured.
+
 c. "It’s totally fine if you’re not sure. Let’s reflect on what this situation means to you now."
+Context: Use this when the patient is unable to identify thoughts even after some exploration. Shifting the focus to the situation's broader meaning can help them uncover insights about their values, fears, or interpretations.
 
 7. Respond to Identified Automatic Thoughts
 - Once the automatic thought(s) are identified, acknowledge the patient’s effort: "Thank you for sharing that. Now let's figure out how you can properly respond to this thought [or thoughts]."

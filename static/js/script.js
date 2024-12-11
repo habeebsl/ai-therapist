@@ -102,44 +102,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Send user message to server
     async function sendMessage() {
-        let message = messageInput.value.trim()
+        let message = messageInput.value.trim();
+        if (!message) {
+            messageInput.value = "";
+            return;
+        }
+        
+        messagesArea.appendChild(createMessageElement("user", message));
+        messageInput.value = "";
+        sendButton.disabled = true;
+        sendButton.textContent = "Sending...";
 
-        if (!message) return;
-
-        messagesArea.appendChild(
-            createMessageElement("user", message)
-        )
-
-        sendButton.style.display = "none";
+        if (!navigator.onLine) {
+            handleError("It seems you're offline right now. Please check your internet connection and try again.");
+            resetSendButton();
+            return;
+        }
 
         try {
             const response = await fetch("/send_message", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message })
-            })
-            
-            const data = await response.json()
-            if (data.error) {
-                console.log(data.error)
-                messagesArea.appendChild(
-                    createMessageElement("error", "Something went wrong on our side. Please try again.")
-                )
-                sendButton.style.display = "block";
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-                return None
-            }
-            if (data.feedback === "inprogress") {
-                messagesArea.appendChild(
-                    createMessageElement("bot", data.message)
-                )
-                messageInput.value = ""
-            }
-            sendButton.style.display = "block";
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            });
 
+            if (!response.ok) {
+                handleError("Failed to send the message. Please try again.");
+                resetSendButton();
+                return;
+            }
+
+            let data;
+            try {
+                data = await response.json();
+            } catch {
+                handleError("Unexpected response from the server.");
+                resetSendButton();
+                return;
+            }
+
+            if (data.error) {
+                handleError("Something went wrong on our side. Please try again.");
+            } else if (data.feedback === "inprogress") {
+                messagesArea.appendChild(createMessageElement("bot", data.message));
+            }
         } catch (error) {
-            console.error("Error: ", error)
+            console.error("Error: ", error);
+            handleError("Unable to send your message due to a network issue. Please try again later.");
+        } finally {
+            resetSendButton();
         }
     }
+
+    // Helper function: Handle errors
+    function handleError(message) {
+        messagesArea.appendChild(createMessageElement("error", message));
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    // Helper function: Reset send button
+    function resetSendButton() {
+        sendButton.disabled = false;
+        sendButton.textContent = "Send";
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
 })

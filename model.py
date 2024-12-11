@@ -84,7 +84,7 @@ def chat_with_ai(prompt, res_key, c_input=None):
         else:
             conversation += f"\nYou: {res}"
         
-        if response["response_ready"] == True:
+        if response["done"] == True:
             return response, conversation
         else:
             print(res)
@@ -133,8 +133,14 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
 
 
 if __name__ == "__main__":
-    topres = chat_with_ai("thought_response", "res", json.dumps({
-        "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
+    # topres = chat_with_ai("thought_response", "res", json.dumps({
+    #     "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
+    #     "done": True
+    # }))
+    topres = chat_with_ai("set_agenda", "res", json.dumps({
+        "res": "Thank you for sharing. We’ve covered both your concerns and positive moments from the week. Let's move on to setting the agenda for the session.",
+        "problem": ["Missed a couple classes", "I have no friends"],
+        "positive": "I played some football this week, and had a lot of fun",
         "done": True
     }))
 
