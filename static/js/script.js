@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            if (sendButton.style.display !== "none") {
+            if (sendButton.disabled !== true) {
                 sendMessage()
             } 
         }
