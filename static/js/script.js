@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const rectangle = document.getElementById("rectangle")
     const box = document.getElementById("box")
 
-    sendButton.addEventListener("click", sendMessage)
+    sendButton.addEventListener("click", async () => {
+        sendMessage()
+    })
 
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {

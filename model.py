@@ -98,18 +98,15 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
     with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
         post = file.read()
 
-    if input:
-        content = f"{input}\n\n\n{post}"
-    else:
-        content = f"{post}"
+    content = f"{input}\n\n\n{post}" if input else post
 
     messages = [
         {
             "role": "system",
             "content": content,
         }
-    ]
-    messages = messages + convo
+    ] + convo
+
     print(messages)
     try:
         chat_response = client.chat.complete(
@@ -124,19 +121,19 @@ def get_ai_response(prompt, convo, res_key=None, input=None):
         raw_response = get_response(chat_response.choices)
         print(chat_response.choices)
         print("Raw response: ", raw_response)
-        response = json.loads(raw_response)
-        res = response["res" if not res_key else res_key]
 
-        return response
-    except:
-        return None
+        if raw_response:
+            response = json.loads(raw_response)
+            return response
+    except json.JSONDecodeError as e:
+        print(f"JSON decoding error: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    return None
 
 
 if __name__ == "__main__":
-    # topres = chat_with_ai("thought_response", "res", json.dumps({
-    #     "summary": "Just to recap, you're feeling fear and anxiety about possibly failing out of school. This week, you missed a couple of classes, and the thought crossed your mind, 'I might fail out of school.' Yesterday morning, while preparing to go to school, you realized you were late and decided to stay home instead. In that moment, the thought of failing out intensified, and it made you feel anxious and fearful. Is that right?",
-    #     "done": True
-    # }))
     topres = chat_with_ai("set_agenda", "res", json.dumps({
         "res": "Thank you for sharing. We’ve covered both your concerns and positive moments from the week. Let's move on to setting the agenda for the session.",
         "problem": ["Missed a couple classes", "I have no friends"],

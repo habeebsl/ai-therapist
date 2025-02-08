@@ -83,10 +83,10 @@ def generate_ai_response():
         response = get_ai_response(prompt=session["current_prompt"], convo=session["current_convo"])
     else:
         if input_details["type"] == "json":
-            input = f"***JSON INPUT\n{input_details['data']}\n***"
+            input_data = f"***JSON INPUT\n{input_details['data']}\n***"
         else:
-            input = f"***CONVERSATION LOG\n{input_details['data']}\n***"      
-        response = get_ai_response(prompt=session["current_prompt"], convo=session["current_convo"], input=input)
+            input_data = f"***CONVERSATION LOG\n{input_details['data']}\n***"      
+        response = get_ai_response(prompt=session["current_prompt"], convo=session["current_convo"], input=input_data)
     
     return response
 
