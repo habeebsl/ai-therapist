@@ -94,7 +94,7 @@ def chat_with_ai(prompt, res_key, c_input=None):
         
 
 # Main function
-def get_ai_response(prompt, convo, res_key=None, input=None):
+def get_ai_response(prompt, convo, input=None):
     with open(os.path.join(r"prompts/", f"{prompt}.txt"), "r", encoding="utf-8") as file:
         post = file.read()
 

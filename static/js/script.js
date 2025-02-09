@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const box = document.getElementById("box")
 
     sendButton.addEventListener("click", async () => {
-        sendMessage()
+        await sendMessage()
     })
 
     messageInput.addEventListener('keypress', (e) => {
