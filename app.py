@@ -54,7 +54,6 @@ def prompt_checker(prompt_name, convo_history, current_convo, ai_response):
                 get_ai_response(
                     prompt="problem_summary", 
                     input=f"***CONVERSATION LOG\n{get_conversation_data(current_convo)}\n***",
-                    res_key="summary",
                     convo=current_convo
                 )
             ),
